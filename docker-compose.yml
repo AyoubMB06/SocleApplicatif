@@ -1,0 +1,32 @@
+version: '3.1'
+services:
+  database:
+    image: oracleinanutshell/oracle-xe-11g
+    ports:
+      - 1521:1521
+    container_name: database-oracle
+    volumes:
+      - db:/opt/oracle/oradata
+    healthcheck:
+      test: exit 0
+  
+  back:
+    container_name: back-end
+    depends_on:
+      database:
+        condition: service_healthy
+    build:
+      context: ./backend
+    ports:
+      - "8080:8082"
+
+  front:
+    container_name: front-end
+    depends_on:
+      - back
+    build: ./frontend
+    ports:
+      - "3000:3000"    
+volumes:
+  db:
+    driver: local
